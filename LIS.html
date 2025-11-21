@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <!--This title appears in the browser tab-->
+    <title>LIS Application</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--This is a link to the Leaflet stylesheet-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"/> 
+    <!--This is a link to the Leaflet JavaScript library-->
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+	<script defer src="BTProperties.js"></script>
+	<script defer src="BTBoundary.js"></script>
+	<script defer src="LIS_code.js"></script>	
+	<!--This is a link to the Esri Leaflet Library-->
+	<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
+	<!--Link to CSS-->
+	<link rel="stylesheet" href="LIS_style.css"/>
+</head>
+<body onload=initialize()>
+	<div id="header-bar">
+    <div id="header"> BLANTYRE CITY LAND INFORMATION PORTAL</div>
+	<div id="Attribution">Created by Geoscientist Frank Mwai Chingoka. 														Contact: +265 881 792 396</div>
+	<!--Add the HTML Search Elements-->
+	<div class="search-container">
+		<input type="text" id="plot-search-input" placeholder="Enter Plot Number">
+		<button id="search-button">Search</button>
+	</div>
+	</div>
+    <!--The map div which hosts map object -->
+    <div id="mapdiv">
+	<button id="full-extent-btn">Full Extent</button>
+	</div>
+</body>
