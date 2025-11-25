@@ -16,7 +16,17 @@
 	<!--Link to CSS-->
 	<link rel="stylesheet" href="LIS_style.css"/>
 </head>
-<body onload=initialize()>
+<body>
+	<!--LOCK SCREEN -->
+	<div id="lock-screen">
+	<div id="lock-box" style="text-align:center; background:white; padding:25px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); margin:auto;">
+    <h2>Enter Password</h2>
+    <input id="password-input" type="password" placeholder="Password" style="padding:10px; width:200px;">
+    <button onclick="checkPassword()" style="padding:10px 20px; margin-top:10px;">Unlock</button>
+    <div id="error-msg" style="color:red; margin-top:10px;"></div>
+	</div>
+	</div>
+	<div id="main-content" style="display:none;">
 	<div id="header-bar">
     <div id="header"> BLANTYRE CITY LAND INFORMATION PORTAL</div>
 	<div id="Attribution">Created by Geoscientist Frank Mwai Chingoka. 														Contact: +265 881 792 396</div>
@@ -30,4 +40,29 @@
     <div id="mapdiv">
 	<button id="full-extent-btn">Full Extent</button>
 	</div>
+</div>
+	<script>
+	async function hash(text) {
+	const msgUint8 = new TextEncoder().encode(text);
+	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+	const hashArray = Array.from(new Uint8Array(hashBuffer));
+	return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+	async function checkPassword() {
+	const correctHash = "1806123836701da397fdb9b633ede7caf44cdf716ca2957ad7e071efc9b8d129";
+	const input = document.getElementById("password-input").value;
+	const inputHash = await hash(input);
+
+	if (inputHash === correctHash) {
+    document.getElementById("lock-screen").style.display = "none";
+    document.getElementById("main-content").style.display = "block";
+
+    // Load map only after unlocking
+    initialize();
+  } else {
+    document.getElementById("error-msg").innerText = "Incorrect password.";
+  }
+}
+</script>
 </body>
