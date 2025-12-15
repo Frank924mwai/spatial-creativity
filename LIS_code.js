@@ -58,6 +58,56 @@
 		},
 	    onEachFeature: onEachFeature})
 		.addTo(map);// Add BTProperties to the map by default
+		// Define a function to process each feature
+		function onEachConstituency(feature,layer)
+		{// Check if the feature has properties
+		    if(feature.properties){
+				const conprop = feature.properties;
+				//Build the content for the pop-up using key attributes
+				let popupContent = `<h3>Constituency Information</h3>
+									<p>
+									<b>Constituency Name:</b> ${conprop.Constituen}<br>
+									</p>
+									`;
+		//Bind the pop-up to the layer
+		layer.bindPopup(popupContent);
+			}
+		}
+		//Add the BTConstituency GeoJSON directly from the variable
+		const constituency =
+		L.geoJSON(BTConstituency,{
+			style: {
+				color:"RED",
+				weight: 1,
+				fillOpacity:0
+			},
+		onEachFeature: onEachConstituency})
+		.addTo(map);
+		// Define a function to process each feature
+		function onEachWard(feature,layer)
+		{// Check if the feature has properties
+		    if(feature.properties){
+				const wardprop = feature.properties;
+				//Build the content for the pop-up using key attributes
+				let popupContent = `<h3>Ward Information</h3>
+									<p>
+									<b>Ward Name:</b> ${wardprop.Ward_Name}<br>
+									</p>
+									`;
+		//Bind the pop-up to the layer
+		layer.bindPopup(popupContent);
+			}
+		}
+		//Add the BTWard GeoJSON directly from the variable
+		const ward =
+		L.geoJSON(BTWards,{
+			style: {
+				color:"RED",
+				weight: 1,
+				fillOpacity:0
+			},
+		onEachFeature: onEachWard})
+		.addTo(map);
 		map.fitBounds(geo.getBounds()); 
 		// Define Layer Groups for Control
 		var Basemaps = {
@@ -65,9 +115,12 @@
 					"Google Satellite":Google,
 					"Google Satellite Hybrid":GoogleSat
 		};
-		var Layers = {
-			        "BT City Boundary": geo,
-					"Land Parcels": property
+		var Layers = { 
+					"Land Parcels": property,
+					"Ward Boundaries":ward,
+					"Constituency Boundaries":constituency,
+					"BT City Boundary": geo
+					
 		};
 		// Add the Layer Control
 		L.control.layers(Basemaps,Layers).addTo(map);
