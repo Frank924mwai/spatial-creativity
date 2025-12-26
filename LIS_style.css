@@ -39,7 +39,7 @@ html, body {
 .search-container {
 	position: absolute;
 	top:45px;
-	right:200px;
+	right:300px;
 	
 	display:flex;
 	align-items:center;
@@ -117,7 +117,7 @@ html, body {
 #full-extent-btn {
     position: absolute;
     left: 10px;
-    top:20px;
+    top:65px;
 
     background-color: #ffffff;
     color: #333;
@@ -141,4 +141,11 @@ html, body {
 	white-space: nowrap !important;
     font-size: 8px !important;
 }
-
+/* This targets the Font Awesome icon inside the locate control */
+.leaflet-control-locate a span.fa-location-arrow {
+    transform: rotate(-45deg); /* Most location arrows are tilted 45 degrees by default */
+}
+/* If you are using the default Material/Leaflet-Locate icon */
+.leaflet-control-locate .leaflet-control-locate-location-arrow {
+    transform: rotate(-45deg);
+}

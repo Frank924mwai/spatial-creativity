@@ -1,6 +1,19 @@
+// Global Variables
+	let map;
+	let searchMarkers=[];
+// Global Help Function
+	function clearSearchMarkers() {
+    if (!Array.isArray(searchMarkers) || searchMarkers.length === 0) {
+		return;
+	}
+        searchMarkers.forEach(marker => {
+            if (map) map.removeLayer(marker);
+        });
+        searchMarkers.length = 0; // Reset the array
+    }
 //Create the map object and set the centre point and zoom level 
     function initialize()   {
-        var map = L.map('mapdiv',{
+        map = L.map('mapdiv',{
 		zoomControl:false // Disable the default zoom control
 		});
 		// Set the view
@@ -9,6 +22,25 @@
 		L.control.zoom({
 			position:'bottomleft'
 		}).addTo(map);
+		// Add Locate Me button
+		L.control.locate({
+			locateOptions:{
+				enableHighAccuracy:true,
+				maxZoom:16,
+				watch:true
+			}
+		}).addTo(map);
+		//Add measurement tool
+		var measureControl=new
+		L.Control.Measure({
+			primaryLengthUnit: 'meters',
+			secondaryLengthUnit:'kilometers',
+			primaryAreaUnit:'sqmeters',
+			secondaryAreaUnit:'hectares',
+			activeColor:'#db4a44',
+			completedColor:'#8b2412'
+		});
+		measureControl.addTo(map);
         //Load tiles from open street map
         var osm = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution:'Map data ©OpenStreetMap contributors, CC-BY-SA, Imagery ©CloudMade',
@@ -31,7 +63,7 @@
 				weight: 5,
 			fillOpacity:0}
 		}).addTo(map); // Add BTBoundary by default
-		// Define a function to process each feature
+		// Define a function to process each boundary feature
 		function onEachFeature(feature,layer)
 		{// Check if the feature has properties
 		    if(feature.properties){
@@ -58,7 +90,23 @@
 		},
 	    onEachFeature: onEachFeature})
 		.addTo(map);// Add BTProperties to the map by default
-		// Define a function to process each feature
+		// Plot Number Autocomplete
+		const plotList = document.getElementById("plot-list");
+		const plotSet = new Set();
+
+		property.eachLayer(function(layer) {
+			const plotNo = layer.feature.properties?.plot_no;
+			if (plotNo) {
+				plotSet.add(String(plotNo));
+			}
+		});
+
+		plotSet.forEach(plot => {
+			const option = document.createElement("option");
+			option.value = plot;
+			plotList.appendChild(option);
+		});
+		// Define a function to process each constituency feature
 		function onEachConstituency(feature,layer)
 		{// Check if the feature has properties
 		    if(feature.properties){
@@ -66,7 +114,9 @@
 				//Build the content for the pop-up using key attributes
 				let popupContent = `<h3>Constituency Information</h3>
 									<p>
-									<b>Constituency Name:</b> ${conprop.Constituen}<br>
+									<b>Name:</b> ${conprop.Constituen}<br>
+									<b>MP:</b> ${conprop.MP_Name}<br>
+									<b>Political Party:</b> ${conprop.Party}<br>
 									</p>
 									`;
 		//Bind the pop-up to the layer
@@ -83,7 +133,7 @@
 			},
 		onEachFeature: onEachConstituency})
 		.addTo(map);
-		// Define a function to process each feature
+		// Define a function to process each ward feature
 		function onEachWard(feature,layer)
 		{// Check if the feature has properties
 		    if(feature.properties){
@@ -91,7 +141,9 @@
 				//Build the content for the pop-up using key attributes
 				let popupContent = `<h3>Ward Information</h3>
 									<p>
-									<b>Ward Name:</b> ${wardprop.Ward_Name}<br>
+									<b>Name:</b> ${wardprop.Ward_Name}<br>
+									<b>Councillor:</b> ${wardprop.Councillor}<br>
+									<b>Political Party:</b> ${wardprop.Party}<br>
 									</p>
 									`;
 		//Bind the pop-up to the layer
@@ -108,19 +160,44 @@
 			},
 		onEachFeature: onEachWard})
 		.addTo(map);
-		map.fitBounds(geo.getBounds()); 
+		// Define a function to process each road feature
+		function onEachRoad(feature,layer)
+		{// Check if the feature has properties
+		    if(feature.properties){
+				const roadprop = feature.properties;
+				//Build the content for the pop-up using key attributes
+				let popupContent = `<h3>Road Information</h3>
+									<p>
+									<b>Name:</b> ${roadprop.Road_Name}<br>
+									</p>
+									`;
+		//Bind the pop-up to the layer
+		layer.bindPopup(popupContent);
+			}
+		}
+		//Add the BTWard GeoJSON directly from the variable
+		const road =
+		L.geoJSON(BTRoads,{
+			style: {
+				color:"#999",
+				weight: 5,
+				fillOpacity:0
+			},
+		onEachFeature: onEachRoad})
+		.addTo(map);
+		map.fitBounds(geo.getBounds());
 		// Define Layer Groups for Control
 		var Basemaps = {
 			        "Open Street Map": osm,
 					"Google Satellite":Google,
 					"Google Satellite Hybrid":GoogleSat
 		};
-		var Layers = { 
+		var Layers = {
+					"BT City Roads": road,
 					"Land Parcels": property,
 					"Ward Boundaries":ward,
 					"Constituency Boundaries":constituency,
-					"BT City Boundary": geo
-					
+					"BT City Boundary": geo		
 		};
 		// Add the Layer Control
 		L.control.layers(Basemaps,Layers).addTo(map);
@@ -137,58 +214,119 @@
 		const searchInput = document.getElementById('plot-search-input');
 		const searchButton = document.getElementById('search-button');
 		//Search Logic
-		function performSearch(){
-			const rawSearchTerm = searchInput.value;					
-		//Remove all spaces (/\s/g) and convert user input to lowercase
-		const cleanSearchTerm = rawSearchTerm.replace(/\s/g,'').toLowerCase();
-		if(!cleanSearchTerm) {
-			//Use a custom alert message instead of window.alert()
-			alert("Please enter a plot number.");
+		function performSearch() {
+
+		const rawSearchTerm = searchInput.value.trim();
+
+		if (!rawSearchTerm) {
+			alert("Please enter a plot number or coordinates.");
 			return;
 		}
+		// WGS84 LAT, LON SEARCH
+		const latLonMatch = rawSearchTerm.match(/^([-+]?\d{1,3}\.\d+),\s*([-+]?\d{1,3}\.\d+)$/);
+		if (latLonMatch) {
+			const lat = parseFloat(latLonMatch[1]);
+			const lon = parseFloat(latLonMatch[2]);
+
+		clearSearchMarkers(); // Clear previous marker on the map 
+
+            const marker = L.marker([lat, lon])
+                .addTo(map)
+                .bindPopup(`WGS84 Coordinates<br>${lat}, ${lon}`)
+                .openPopup();
+            
+            searchMarkers.push(marker);
+            map.flyTo([lat, lon], 18);
+            return;
+		}
+	// Defining EPSG 32736 
+	proj4.defs("EPSG:32736", "+proj=utm +zone=36 +south +datum=WGS84 +units=m +no_defs");
+
+	// Search Block
+	const utmMatch = rawSearchTerm.match(/^(\d{6,7}(?:\.\d+)?),\s*(\d{6,7}(?:\.\d+)?)$/);
+
+	if (utmMatch) {
+    // Using parseFloat ensures decimals are preserved
+    const easting = parseFloat(utmMatch[1]);
+    const northing = parseFloat(utmMatch[2]);
+
+    // DEBUG: Open your browser console (F12) to check these numbers!
+    console.log("Input Easting:", easting, "Input Northing:", northing);
+
+    try {
+        // Convert UTM 36S -> WGS84
+        const coords = proj4("EPSG:32736", "WGS84", [easting, northing]);
+        
+        const lon = coords[0]; // Proj4 returns Longitude first
+        const lat = coords[1]; // Then Latitude
+
+        console.log("Converted Lat/Lon:", lat, lon);
+
+        // Malawi Bounds Check (Widened slightly to be safe)
+        if (lat < -18.0 || lat > -9.0 || lon < 32.0 || lon > 36.5) {
+            alert(`Coordinates (${lat.toFixed(4)}, ${lon.toFixed(4)}) are outside Malawi.`);
+            return;
+        }
+
+        clearSearchMarkers(); // Clear previous marker on the map
+
+        const marker = L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup(`<b>UTM 36S</b><br>E: ${easting}<br>N: ${northing}`)
+            .openPopup();
+
+        searchMarkers.push(marker);
+        map.flyTo([lat, lon], 18);
+
+		} 
+		catch (err) {
+        console.error("Projection error:", err);
+    }
+    return;
+}
+		// PLOT NUMBER SEARCH
+		const cleanSearchTerm = rawSearchTerm.replace(/\s/g, '').toLowerCase();
+
 		let found = false;
-		//-----Highlight Reset-----
-		//If a layer was previously highlighted, reset it to the default style
-		if(previousHighlightLayer){
+
+		// Reset previous highlight
+		if (previousHighlightLayer) {
 			property.resetStyle(previousHighlightLayer);
+			previousHighlightLayer = null;
 		}
-		// ---------------------------
-		//Iterate through all features in the 'property' layer
-		property.eachLayer(function(layer){
-			if(layer.feature.properties){
+
+		property.eachLayer(function (layer) {
+			if (layer.feature.properties) {
 				const plotValue = layer.feature.properties[PLOT_KEY];
-			if(plotValue) {
-				// Ensure plotValue is a string, remove all spaces,and convert to lowercase
-				const cleanPlotValue=String(plotValue).replace(/\s/g,'').toLowerCase();
-			//Compare the cleaned values
-			if(cleanPlotValue === cleanSearchTerm){
-				//Found a match! 
-			// Apply Highlight style
-			layer.setStyle(highlightingStyle);
-			previousHighlightLayer = layer;// Store reference for future reset		
-			// Mobile Fix: Force map to re-evaluate its size before or after zooming
-			map.invalidateSize();
-			//Zoom to the feature bounds
-				map.fitBounds(layer.getBounds(),{
-					padding:[50,50],//Add padding so the plot isn't right on the edge
-					maxZoom:18 // Zoom in fairly close
-				});
-			//Force perfect centering even on Mobile
-				map.once('zoomed',function(){
-					map.panTo(layer.getCenter());
-				});
-			//Open the pop-up immediately
-				layer.openPopup();
-				found = true;
-		//Exit the eachLayer loop once found
-		return;
-		}}}});
-		if(!found){
-			//No match found, ensure the previous highlight is cleared
-			previousHighlightLayer=null;
-			alert(`Plot number "${rawSearchTerm}" not found.`);
+
+				if (plotValue) {
+					const cleanPlotValue = String(plotValue).replace(/\s/g, '').toLowerCase();
+
+					if (cleanPlotValue === cleanSearchTerm) {
+
+						layer.setStyle(highlightingStyle);
+						previousHighlightLayer = layer;
+
+						map.invalidateSize();
+
+						map.fitBounds(layer.getBounds(), {
+							padding: [50, 50],
+							maxZoom: 18
+						});
+
+						layer.openPopup();
+						found = true;
+						return;
+					}
+				}
+			}
+		});
+
+		if (!found) {
+			alert(`No matching plot or coordinates found for "${rawSearchTerm}".`);
 		}
-		} // End of performSearch function
+	}
+	// End of performSearch function
 		// Event listener 1: Search Button click
 		searchButton.addEventListener('click',performSearch);
 		// Event listener 1: Enter Key Press in the input field
@@ -207,13 +345,13 @@
     
     // Close any open popup
     map.closePopup();
-
+	
+	// Remove the UTM/WGS84 search markers
+    clearSearchMarkers();
     // Remove highlight from previously selected feature
     if (previousHighlightLayer) {
         property.resetStyle(previousHighlightLayer);
         previousHighlightLayer = null;
     }
 });
-
-
-	}
+}
