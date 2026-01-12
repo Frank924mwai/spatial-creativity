@@ -185,6 +185,39 @@
 			},
 		onEachFeature: onEachRoad})
 		.addTo(map);
+		// Define a function to process each QVR feature
+				function onEachQVR(feature,layer)
+		{// Check if the feature has properties
+		    if(feature.properties){
+				const QVRprop = feature.properties;
+				//Build the content for the pop-up using key attributes
+				let popupContent = `<h3>QVR Information</h3>
+									<p>
+									<b>Plot Number:</b> ${QVRprop.PLOT_NUMBE}<br>
+									<b>Owner:</b> ${QVRprop.OWNER}<br>
+									</p>
+									`;
+		//Bind the pop-up to the layer
+		layer.bindPopup(popupContent);
+			}
+		}
+		//Add the BTWard GeoJSON directly from the variable
+		// 1. Create the renderer instance first
+		const canvasRenderer = L.canvas();
+		const qvr =
+		L.geoJSON(QVR,{
+			renderer: canvasRenderer,
+			pointToLayer: function (feature,latlng) {
+			return L.circleMarker(latlng,{
+			radius:9,
+			fillColor: "RED",
+			color:"BLACK",
+			weight:1,
+			fillOpacity:0.8
+			});
+			},
+		onEachFeature: onEachQVR})
+		.addTo(map);
 		map.fitBounds(geo.getBounds());
 		// Define Layer Groups for Control
 		var Basemaps = {
@@ -193,6 +226,7 @@
 					"Google Satellite Hybrid":GoogleSat
 		};
 		var Layers = {
+					"QVR 2021 Data": qvr,
 					"BT City Roads": road,
 					"Land Parcels": property,
 					"Ward Boundaries":ward,
@@ -352,6 +386,14 @@
     if (previousHighlightLayer) {
         property.resetStyle(previousHighlightLayer);
         previousHighlightLayer = null;
+    }
+});
+	// Show QVR points only when zoomed in (performance)
+		map.on("zoomend", function () {
+		if (map.getZoom() >= 16) {
+        if (!map.hasLayer(qvr)) map.addLayer(qvr);
+		} else {
+        if (map.hasLayer(qvr)) map.removeLayer(qvr);
     }
 });
 }

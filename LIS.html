@@ -21,6 +21,7 @@
 	<script defer src="BTWards.js"></script>
 	<script defer src="LIS_code.js"></script>
 	<script defer src="BTRoads.js"></script>
+	<script defer src="QVR.js"></script>
 	<!--This is a link to the Esri Leaflet Library-->
 	<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
 	<!--Link to CSS-->
@@ -61,7 +62,7 @@
 }
 
 	async function checkPassword() {
-	const correctHash = "1806123836701da397fdb9b633ede7caf44cdf716ca2957ad7e071efc9b8d129";
+	const correctHash = "b0dba05676f7bc1487a55129f8b973dc7e19885864ce72709bcfb27c37dace43";
 	const input = document.getElementById("password-input").value;
 	const inputHash = await hash(input);
 
