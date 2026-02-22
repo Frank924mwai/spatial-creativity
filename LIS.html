@@ -21,7 +21,6 @@
 	<script defer src="BTWards.js"></script>
 	<script defer src="LIS_code.js"></script>
 	<script defer src="BTRoads.js"></script>
-	<script defer src="QVR.js"></script>
 	<!--This is a link to the Esri Leaflet Library-->
 	<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
 	<!--Link to CSS-->
@@ -38,9 +37,12 @@
 	</div>
 	</div>
 	<div id="main-content" style="display:none;">
+	<div id="top-section">
 	<div id="header-bar">
+	<img src="BT CITY.png" alt="Logo" class="portal-logo">
     <div id="header"> BLANTYRE CITY LAND INFORMATION PORTAL</div>
-	<div id="Attribution">Created by Geoscientist Frank Mwai Chingoka. 														Contact: +265 881 792 396</div>
+	<div id="Attribution">Created by Geoscientist Frank Mwai Chingoka</div>
+	</div>
 	<!--Add the HTML Search Elements-->
 	<div class="search-container">
 		<input type="text" id="plot-search-input" list="plot-list" placeholder="Enter Plot No or Coords">
@@ -48,11 +50,33 @@
 		<datalist id="plot-list"></datalist>
 	</div>
 	</div>
+	<div id="content-wrapper">
+	<div id="sidebar">
+	<div class="sidebar-section">
+			<h3>About</h3>
+			<p>The Blantyre City Land Information Portal is a web-based application developed to modernise and streamline access to spatial information within Blantyre City Council. The platform represents a strategic shift from traditional paper-based maps toward a centralised digital interface that improves efficiency, accessibility, and data-driven decision-making.</p>
+
+			<p>Designed primarily to support the Directorates of Town Planning and Estates Services, Commerce, Legal Services, and other departments that rely on spatial data, the portal enhances how land-related information is accessed and utilised across the Council. By enabling remote monitoring of developments, the system contributes to smarter development control and reduces reliance on physical site inspections alone.<p/>
+
+			<p>At the core of the portal is a search function that allows users to quickly locate land parcels using plot numbers, geographical coordinates, and Universal Traverse Mercator (UTM) coordinates. This feature addresses the common challenge of identifying properties when specialized staff are unavailable and strengthens institutional continuity. The platform also supports the Commerce Directorate in improving the accuracy of bill distribution by enabling precise property identification, minimizing dependence on individual institutional memory.</p>
+
+			<p>The interactive mapping interface allows users to toggle vector layers and switch between basemaps, including Google Satellite, Hybrid, and OpenStreetMap, to achieve optimal terrain visualisation. Clicking on a parcel generates a pop-up displaying key attributes such as plot number, hectarage, and perimeter. In the application, an individual can also pick a coordinate, measure distance as well as area using the measurement tool. The application also indicates the location of an individual relative to the map. While area and perimeter values provided are approximate, users are advised to consult the relevant offices for official and precise measurements.</p>
+
+			<p>The portal is a work in progress, and the property database is continuously being updated and improved. As the system evolves, it is intended to further strengthen digital transformation efforts within the Council.</p>
+
+			<h3>Creator's Contact Details</h3>
+                <p><strong>Geoscientist:</strong> Frank Mwai Chingoka<br>
+                <strong>Email:</strong>mwaichingoka@gmail.com<br>
+                <strong>Phone:</strong> +265 881 792 396</p>
+            </div>
+	</div>
+	<button id="nav-toggle" onclick="toggleNav()" title="Show About Page">☰</button>
     <!--The map div which hosts map object -->
     <div id="mapdiv">
 	<button id="full-extent-btn">Full Extent</button>
 	</div>
-</div>
+	</div>
+	</div>
 	<script>
 	async function hash(text) {
 	const msgUint8 = new TextEncoder().encode(text);
@@ -72,9 +96,35 @@
 
     // Load map only after unlocking
     initialize();
+	setTimeout(()=> {
+				if(typeof map !=='undefined') {
+				map.invalidateSize();
+				}
+			},300);
   } else {
     document.getElementById("error-msg").innerText = "Incorrect password.";
   }
+}
+	function toggleNav() {
+    const sidebar = document.getElementById("sidebar");
+    const navBtn = document.getElementById("nav-toggle");
+
+    // Toggle the 'closed' class
+    sidebar.classList.toggle("open");
+
+    // Update button text
+    if (sidebar.classList.contains("open")) {
+        navBtn.innerHTML = "☰";
+    } else {
+        navBtn.innerHTML = "☰";
+    }
+
+    // Tell Leaflet the map size has changed after the animation finishes
+    setTimeout(() => {
+        if (typeof map !== 'undefined') {
+            map.invalidateSize();
+        }
+    }, 350);
 }
 </script>
 </body>
