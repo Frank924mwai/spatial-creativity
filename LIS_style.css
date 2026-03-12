@@ -1,10 +1,10 @@
-/* RESET AND BASE */
+/* Reset and Base */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-/* Define html and body properties*/
+/* Defining html and body properties*/
 html, body {
 	height:100%;
     margin: 0;
@@ -16,7 +16,7 @@ html, body {
     font-size: 15px;
 	overflow:hidden;
 }
-/* 1. The Fixed Top Container */
+/* Top Container properties*/
 #top-section {
     position: fixed;
     top: 0;
@@ -25,14 +25,14 @@ html, body {
 	justify-content: space-between;
     width: 100%;
     background-color: white;
-    z-index: 8000; /* Highest priority */
+    z-index: 8000; 
     border-bottom: 1px solid #ccc;
     padding: 10px 0px 10px 0px;
     display: flex;
     align-items:center;
     height: 70px; 
 }
-/* Define map object properties*/
+/* Map object properties*/
 #mapdiv {
     position: relative;
 	margin-top:70px;
@@ -43,7 +43,7 @@ html, body {
     border: thin solid black;
 	z-index:1;
 }
-/* Define header properties*/
+/* Header properties*/
 #header {
 	font-size:16px;
 	font-weight: bold;
@@ -58,15 +58,16 @@ html, body {
 	gap: 12px;
 	grid-column: 2 / 3;
     grid-row: 1 / 2;
-    align-self: start !important;   /* HEADER = TOP right of logo */
+    align-self: start !important;   
     margin: 0 !important;
     padding: 0 !important;
     font-size: 16.5px;
     line-height: 1.05;
 }
+/* Logo properties*/
 .portal-logo {
-    height: 40px;          /* Adjust this height to fit your top bar */
-    width: auto;           /* Keeps the logo's proportions correct */
+    height: 40px;          
+    width: auto;
     object-fit: contain;
 	margin-top:15px;
 	height: 52px !important;
@@ -76,7 +77,7 @@ html, body {
     align-self: center;
 }
 }
-/* Define search container properties*/
+/* Search container properties*/
 .search-container {
 	position: relative;
 	display:flex;
@@ -86,21 +87,23 @@ html, body {
 	margin-left:auto;
 	align-items:center;
 }
+/* Mobile properties*/
 @media(max-width:768px){
 	#top-section {
 	display: grid !important;
     grid-template-columns: 68px 1fr !important;
-    grid-template-rows: 1fr 1fr auto !important;   /* two equal rows for logo height + search below */
+    grid-template-rows: auto auto !important;   
     gap: 4px 15px !important;
-    height: 138px !important;
-    padding: 12px 10px !important;
+    height: 110px !important;
+    padding: 8px 10px !important;
     background-color: white !important;
-    z-index: 8000 !important;
+    z-index: 10020 !important;
+	overflow:visible !important;
     }
 	#header {
 	grid-column: 2 / 3 !important;
     grid-row: 1 / 2 !important;
-    align-self: start !important;     /* HEADER = TOP right of logo */
+    align-self: start !important;     
     font-size: 14px !important;
     text-align: left !important;
     margin: 0 !important;
@@ -110,7 +113,7 @@ html, body {
 	#Attribution {
 	grid-column: 2 / 3 !important;
     grid-row: 2 / 3 !important;
-    align-self: end !important;       /* ATTRIBUTION = BOTTOM right of logo */
+    align-self: end !important;      
     font-size: 10px !important;
     text-align: left !important;
     margin: 0 !important;
@@ -128,58 +131,116 @@ html, body {
 	display: contents !important;
 	}
 	#mapdiv {
-	position: absolute !important; /* Absolute is generally safer for map bounds than fixed */
-	top: 130px !important;      /* Starts exactly where header ends */
-	bottom: 0 !important;       /* Locks exactly to the visible bottom of the browser */
+	position: absolute !important; 
+	top: 110px !important;      
+	bottom: 0 !important;       
 	left: 0 !important;
 	right: 0 !important;
 	width: 100% !important;
-	height: auto !important;    /* REMOVED 100vh calc. Let top and bottom dictate the size */
+	height: auto !important;    
 	margin-top: 0 !important;
 	z-index: 1;
 	}
 	#sidebar {
-	width: 85% !important;      /* Don't use 100% so users can tap map to close */
-    top: 130px !important;      /* Starts below header */
-    height: calc(100vh - 130px) !important;
+	width: 85% !important;      
+    top: 110px !important;      
+    height: calc(100vh - 110px) !important;
     z-index: 9000 !important;
     }
 	.search-container{
 	grid-column: 1 / 3 !important;
-    grid-row: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
     display: flex !important;
     width: 100% !important;
-    margin-top: 8px !important;
-    justify-content: center !important;
+    margin-top: 4px !important;
+    justify-content: flex-end !important;
+	align-items:center !important;
+	flex-wrap: nowrap !important;
+    gap: 4px !important;
+	overflow:hidden !important;
 	}
 	#plot-search-input {
-		flex-grow:1;
-		font-size:16px;
+	flex: 1 1 auto !important; 
+	min-width: 80px !important;
+	font-size: 14px !important;
+	padding: 6px 8px !important;
+	}
+	#search-button {
+	font-size: 14px !important;
+	padding: 6px 10px !important;
+	}
+	#layer-select, #attribute-select {
+    flex: 0 0 auto !important;
+	width: 90px !important;
+	font-size: 14px !important;
+	padding: 6px 8px !important;
+	order: 3 !important;
+    }
+	#attribute-select {
+	order: 4 !important;
+	}
+	#plot-search-input {
+	order: 1 !important;
+	}
+	#search-button {
+	order: 2 !important;
 	}
 	#nav-toggle {
 	position: fixed !important;
-    top: 140px !important;      /* Inside the map area */
+    top: 120px !important;      
     left: 10px !important;
     z-index: 9500 !important;
     }
 	#nav-toggle.open {
-	left: calc(85% - 45px) !important; /* Moves with sidebar */
+	left: calc(85% - 45px) !important; 
     }
-	/* Ensure all Leaflet controls stay above map tiles */
+	/* Ensuring all Leaflet controls stay above map tiles */
     .leaflet-control {
-	margin: 10px !important;    /* Restores padding so they aren't "half-cut" */
+	margin: 10px !important;    
     z-index: 8000 !important;
     }
-	/* 4. Fix the Disappearing Full Extent Button */
+	/* Full Extent Button properties */
 	#full-extent-btn {
 	position: fixed !important;
-    top: 210px !important;      /* Below the hamburger menu */
+    top: 190px !important;      
     left: 10px !important;
     z-index: 8500 !important;
 	}
+	.awesomplete {
+	display: flex !important;           
+    flex: 1 1 auto !important;          
+    min-width: 0 !important;            
+    width: 100% !important;
+    z-index: 9999 !important;
+	}
+	.awesomplete > input {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 80px !important;
+	}
+	.awesomplete ul {
+	position:relative !important;
+    left: auto !important;
+    right: 0 !important;                 
+    transform: translateX(0) !important;
+	z-index:9999 !important;
+	pointer-events: auto !important;
+    }
+	/* Forcing the dropdown to truly vanish and not block clicks */
+    .awesomplete ul[hidden], 
+    .awesomplete ul:empty {
+	display: none !important;
+	pointer-events: none !important; /* Ensures it can't capture clicks when hidden */
+    }
+	#nav-toggle,
+    #full-extent-btn,
+    .leaflet-control-locate,
+    .leaflet-control-layers {
+    z-index: 10005 !important;
+    }
     }
 	#full-extent-btn {
-        top: 80px; /* Moves your custom button down so it doesn't overlap */
+        top: 80px; /* Moves the custom button down so it doesn't overlap */
 		z-index:1000;
     }
 #plot-search-input {
@@ -217,7 +278,7 @@ html, body {
 	margin:0;
 	grid-column: 2 / 3;
     grid-row: 2 / 3;
-    align-self: end !important;     /* ATTRIBUTION = BOTTOM right of logo */
+    align-self: end !important;     
     margin: 0 !important;
     padding: 0 !important;
     font-size: 0.73em;
@@ -234,11 +295,11 @@ html, body {
     grid-template-columns: auto 1fr;
     grid-template-rows: 1fr 1fr;
     gap: 3px 16px;
-    height: 52px;                  /* matches logo height */
+    height: 52px;                  
 }
 #full-extent-btn {
 	position: absolute;
-    left: 14px !important;     /* exact left alignment */
+    left: 14px !important;     
     top: 82px;
     background-color: #ffffff;
     color: #333;
@@ -263,16 +324,16 @@ html, body {
 }
 /* This targets the Font Awesome icon inside the locate control */
 .leaflet-control-locate a span.fa-location-arrow {
-    transform: rotate(-45deg); /* Most location arrows are tilted 45 degrees by default */
+    transform: rotate(-45deg); 
 }
-/* If you are using the default Material/Leaflet-Locate icon */
+/* The default Material/Leaflet-Locate icon properties */
 .leaflet-control-locate .leaflet-control-locate-location-arrow {
     transform: rotate(-45deg);
 }
 .leaflet-control-locate {
 	position: absolute !important;
-    left: 0px !important;      /* ← PUSHED TO THE LEFT to match Full Extent */
-    top: 148px !important;      /* perfect gap below Full Extent button */
+    left: 0px !important;      
+    top: 148px !important;      
     z-index: 1000 !important;
 }
 .leaflet-control-locate a {
@@ -360,16 +421,15 @@ html, body {
     text-align: justify;
 }
 .sidebar-section:last-of-type {
-    margin-bottom: 30px; /* Gives extra space at the very bottom of the sidebar */
+    margin-bottom: 30px; 
 }
 .leaflet-top.leaflet-left {
-    top: 10px !important; /* This is 10px from the top of the mapdiv, not the screen */
+    top: 10px !important; 
 	left: 16px !important;
 }
 .leaflet-control-zoom {
-    margin-bottom: 30px !important;   /* Extra breathing room below zoom (before locate/full-extent) */
+    margin-bottom: 30px !important;  
 }
-
 .leaflet-control-attribution {
     margin-bottom: 5px !important;
     margin-right: 0px !important;
@@ -381,3 +441,53 @@ html, body {
     line-height: 1.2;
     white-space: nowrap !important;
 }
+/* Styling for the dropdowns */
+	#layer-select, #attribute-select {
+    font-size: 15px;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    background-color: white;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+#layer-select:focus, #attribute-select:focus {
+    border-color: #4169e1;
+    box-shadow: 0 0 6px rgba(30,144,255,0.5);
+}
+#layer-select, #attribute-select, #plot-search-input, #search-button {
+        font-size: 14px; 
+        padding: 6px 10px;
+    }
+/* Ensuring Awesomplete suggestions can overlay the map on mobile */
+	.awesomplete {
+    position: relative !important;           
+    z-index: 8500 !important;                
+	}
+	.awesomplete ul {
+    position: absolute !important;
+    top: 100% !important;                    
+    left: 0 !important;
+    right: auto !important;
+    min-width: 220px !important;             
+    max-width: 90vw !important;              
+    background: white !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
+    z-index: 9999 !important;                
+    margin: 4px 0 0 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    max-height: 40vh !important;             
+    overflow-y: auto !important;
+	}
+	/* Preventing any ancestor clipping */
+	#top-section,
+	#header-bar,
+	.search-container,
+	.awesomplete-wrapper {                       
+    overflow: visible !important;
+    clip: auto !important;                  
+	}

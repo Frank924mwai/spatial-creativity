@@ -10,24 +10,29 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css"/>
 	<!--This is a link to the Measurement stylesheet-->
 	<link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css"/>
-    <!--This is a link to the Leaflet JavaScript library-->
+	<!--This is a link to the awesomplete stylesheet-->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css" />
+    <!--These are links to the Leaflet JavaScript libraries-->
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
 	<script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
+	<!--These are links to the geojson local files-->
 	<script defer src="BTProperties.js"></script>
 	<script defer src="BTBoundary.js"></script>
 	<script defer src="BTConstituency.js"></script>
 	<script defer src="BTWards.js"></script>
 	<script defer src="LIS_code.js"></script>
 	<script defer src="BTRoads.js"></script>
+	<script defer src="BTNas.js"></script>
 	<!--This is a link to the Esri Leaflet Library-->
 	<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
-	<!--Link to CSS-->
+	<!--This is a link to the CSS-->
 	<link rel="stylesheet" href="LIS_style.css"/>
 </head>
 <body>
-	<!--LOCK SCREEN -->
+	<!--This is a lock screen-->
 	<div id="lock-screen">
 	<div id="lock-box" style="text-align:center; background:white; padding:25px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); margin:auto;">
     <h2>Enter Password</h2>
@@ -36,20 +41,33 @@
     <div id="error-msg" style="color:red; margin-top:10px;"></div>
 	</div>
 	</div>
+	<!--This is the main content page-->
 	<div id="main-content" style="display:none;">
+	<!--This is the top section-->
 	<div id="top-section">
+	<!--This is the header bar-->
 	<div id="header-bar">
-	<img src="BT CITY.png" alt="Logo" class="portal-logo">
-    <div id="header"> BLANTYRE CITY LAND INFORMATION PORTAL</div>
-	<div id="Attribution">Created by Geoscientist Frank Mwai Chingoka</div>
+	<img src="BT CITY.png" alt="Logo" class="portal-logo"> <!--This is BCC Logo-->
+    <div id="header"> BLANTYRE CITY LAND INFORMATION PORTAL</div> <!--This is the subject of the application-->
+	<div id="Attribution">Created by Geoscientist Frank Mwai Chingoka</div> <!--This is attribution-->
 	</div>
-	<!--Add the HTML Search Elements-->
+	<!--This adds the HTML Search Elements-->
 	<div class="search-container">
-		<input type="text" id="plot-search-input" list="plot-list" placeholder="Enter Plot No or Coords">
+        <select id="layer-select">
+            <option value="property">Land Parcels</option>
+			<option value="nas">Street Addresses</option>
+            <option value="ward">Wards</option>
+            <option value="constituency">Constituencies</option>
+            <option value="road">Roads</option>
+        </select>
+	<!--This ensures attributes from the geojson files are selected-->
+        <select id="attribute-select"></select>
+		<input type="text" id="plot-search-input" list="plot-list" placeholder="Search or Coords">
 		<button id="search-button">Search</button>
 		<datalist id="plot-list"></datalist>
 	</div>
 	</div>
+	<!--This section details the function of the application-->
 	<div id="content-wrapper">
 	<div id="sidebar">
 	<div class="sidebar-section">
@@ -63,27 +81,30 @@
 			<p>The interactive mapping interface allows users to toggle vector layers and switch between basemaps, including Google Satellite, Hybrid, and OpenStreetMap, to achieve optimal terrain visualisation. Clicking on a parcel generates a pop-up displaying key attributes such as plot number, hectarage, and perimeter. In the application, an individual can also pick a coordinate, measure distance as well as area using the measurement tool. The application also indicates the location of an individual relative to the map. While area and perimeter values provided are approximate, users are advised to consult the relevant offices for official and precise measurements.</p>
 
 			<p>The portal is a work in progress, and the property database is continuously being updated and improved. As the system evolves, it is intended to further strengthen digital transformation efforts within the Council.</p>
-
+	<!--This section indicates the creator of the application-->
 			<h3>Creator's Contact Details</h3>
                 <p><strong>Geoscientist:</strong> Frank Mwai Chingoka<br>
                 <strong>Email:</strong>mwaichingoka@gmail.com<br>
                 <strong>Phone:</strong> +265 881 792 396</p>
             </div>
 	</div>
+	<!--This is the symbol that allows opening and closing of the about page-->
 	<button id="nav-toggle" onclick="toggleNav()" title="Show About Page">☰</button>
-    <!--The map div which hosts map object -->
+    <!--This is the	map div which hosts map object -->
     <div id="mapdiv">
+	<!--This button allows full view of Blantyre City Boundary-->
 	<button id="full-extent-btn">Full Extent</button>
 	</div>
 	</div>
 	</div>
 	<script>
+	<!--This is the password section-->
 	async function hash(text) {
 	const msgUint8 = new TextEncoder().encode(text);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
 	return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+	}
 
 	async function checkPassword() {
 	const correctHash = "b0dba05676f7bc1487a55129f8b973dc7e19885864ce72709bcfb27c37dace43";
@@ -94,17 +115,17 @@
     document.getElementById("lock-screen").style.display = "none";
     document.getElementById("main-content").style.display = "block";
 
-    // Load map only after unlocking
+    // This loads the map after unlocking
     initialize();
 	setTimeout(()=> {
 				if(typeof map !=='undefined') {
 				map.invalidateSize();
 				}
 			},300);
-  } else {
+	} else {
     document.getElementById("error-msg").innerText = "Incorrect password.";
-  }
-}
+	}
+	}
 	function toggleNav() {
     const sidebar = document.getElementById("sidebar");
     const navBtn = document.getElementById("nav-toggle");
