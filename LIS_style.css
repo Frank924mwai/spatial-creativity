@@ -87,7 +87,6 @@ html, body {
 	margin-left:auto;
 	align-items:center;
 }
-/* Mobile properties*/
 @media(max-width:768px){
 	#top-section {
 	display: grid !important;

@@ -98,7 +98,7 @@
 	</div>
 	</div>
 	<script>
-	<!--This is the password section-->
+	//This is the password section
 	async function hash(text) {
 	const msgUint8 = new TextEncoder().encode(text);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
