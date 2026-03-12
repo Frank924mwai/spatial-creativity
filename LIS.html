@@ -23,7 +23,7 @@
 	<script defer src="BTBoundary.js"></script>
 	<script defer src="BTConstituency.js"></script>
 	<script defer src="BTWards.js"></script>
-	<script defer src="LIS_code.js"></script>
+	<script src="LIS_code.js"></script>
 	<script defer src="BTRoads.js"></script>
 	<script defer src="BTNas.js"></script>
 	<!--This is a link to the Esri Leaflet Library-->
@@ -107,24 +107,38 @@
 	}
 
 	async function checkPassword() {
-	const correctHash = "b0dba05676f7bc1487a55129f8b973dc7e19885864ce72709bcfb27c37dace43";
-	const input = document.getElementById("password-input").value;
-	const inputHash = await hash(input);
+    const errorMsg = document.getElementById("error-msg");
+    errorMsg.innerText = ""; // clear previous message
 
-	if (inputHash === correctHash) {
-    document.getElementById("lock-screen").style.display = "none";
-    document.getElementById("main-content").style.display = "block";
+    try {
+        const correctHash = "b0dba05676f7bc1487a55129f8b973dc7e19885864ce72709bcfb27c37dace43";
+        const input = document.getElementById("password-input").value.trim();
 
-    // This loads the map after unlocking
-    initialize();
-	setTimeout(()=> {
-				if(typeof map !=='undefined') {
-				map.invalidateSize();
-				}
-			},300);
-	} else {
-    document.getElementById("error-msg").innerText = "Incorrect password.";
-	}
+        if (!input) {
+            errorMsg.innerText = "Please enter a password.";
+            return;
+        }
+
+        const inputHash = await hash(input);
+
+        if (inputHash === correctHash) {
+            document.getElementById("lock-screen").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+
+            initialize(); // ← this is where the map starts
+
+            setTimeout(() => {
+                if (typeof map !== 'undefined') {
+                    map.invalidateSize();
+                }
+            }, 300);
+        } else {
+            errorMsg.innerText = "Incorrect password.";
+        }
+    } catch (err) {
+        console.error(err);
+        errorMsg.innerText = "Error: " + err.message;
+    }
 	}
 	function toggleNav() {
     const sidebar = document.getElementById("sidebar");
